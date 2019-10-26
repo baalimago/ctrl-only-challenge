@@ -1,26 +1,39 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+const cp = require('child_process');
+const path = require("path");
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "CtrlOnlyChallenge" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('extension.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World!');
-	});
+	
+	let disposable = vscode.workspace.onDidChangeTextDocument((event: vscode.TextDocumentChangeEvent) => {
+		queueMeow();
+	  });
 
 	context.subscriptions.push(disposable);
+}
+
+const _playerWindowsPath = path.join(__dirname, '..', 'media', 'player.exe');
+const filePath = `${__dirname}\\..\\media\\meow.mp3`;	
+var amMeows=0;
+var meowActive = false;
+function queueMeow() {
+	if(meowActive){
+		amMeows++;
+	} else {
+		amMeows++;
+		meowLoop();
+		meowActive= true;
+	}
+}
+
+function meowLoop(){
+	if(amMeows > 0) {
+		cp.execFile(_playerWindowsPath, [filePath]);
+		amMeows--;
+		vscode.window.showInformationMessage(`Meows left: ${amMeows}`);
+		setTimeout(meowLoop, 1200);
+	} else {
+		meowActive = false;
+	}
 }
 
 // this method is called when your extension is deactivated
